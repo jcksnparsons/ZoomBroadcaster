@@ -19,6 +19,9 @@ import {
   QTabPanels,
   QTabPanel,
   QDate,
+  QInput,
+  QForm,
+  Notify,
 } from "quasar";
 
 Vue.use(Quasar, {
@@ -39,7 +42,11 @@ Vue.use(Quasar, {
     QTabPanels,
     QTabPanel,
     QDate,
+    QInput,
+    QForm,
   },
   directives: {},
-  plugins: {},
+  plugins: {
+    Notify,
+  },
 });

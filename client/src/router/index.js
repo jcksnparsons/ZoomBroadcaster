@@ -1,6 +1,7 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 import CohortRecordings from "../views/CohortRecordings.vue";
+import RecordingSummaryForm from "../views/RecordingSummaryForm.vue";
 
 Vue.use(VueRouter);
 
@@ -9,6 +10,11 @@ export const routes = [
     path: "/:cohort",
     name: "Recordings",
     component: CohortRecordings,
+  },
+  {
+    path: "/:cohort/recordings/:recording/edit",
+    name: "SummaryForm",
+    component: RecordingSummaryForm,
   },
   // {
   //   path: "/login",

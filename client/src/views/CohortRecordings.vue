@@ -25,8 +25,8 @@
         <q-tab-panels
           v-model="selectedDate"
           animated
-          transition-prev="jump-up"
-          transition-next="jump-up"
+          transition-prev="fade"
+          transition-next="fade"
         >
           <q-tab-panel v-for="event in options" :key="event" :name="event">
             <h2 class="q-mb-sm text-blue-grey-10">
@@ -89,7 +89,7 @@ export default {
     return {
       recordings: [],
       meetingName: this.$route.params.cohort,
-      splitterModel: 60,
+      splitterModel: 65,
       selectedDate: this.dateStr(now),
       classroom: null,
     };

@@ -19,5 +19,14 @@ const auth = firebase.auth();
 const usersCollection = db.collection("users");
 const classroomsCollection = db.collection("classrooms");
 
+const getRecordingsCollection = (cohortId) =>
+  classroomsCollection.doc(cohortId).collection("recordings");
+
 // export utils/refs
-export { db, auth, usersCollection, classroomsCollection };
+export {
+  db,
+  auth,
+  usersCollection,
+  classroomsCollection,
+  getRecordingsCollection,
+};
