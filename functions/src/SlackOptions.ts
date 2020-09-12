@@ -5,4 +5,6 @@ export interface SlackOptions {
   instructorEmail?: string;
   instructorSlackId?: string;
   cohortId: string;
+  recordingDate: Date;
+  recordingId: string;
 }

@@ -12,7 +12,7 @@ export const buildChannelSlackMessage = (
       {
         type: "section",
         text: {
-          type: "text",
+          type: "plain_text",
           text: `A new zoom recording has been added for your classroom.\nPassword: ${zoomPassword}`,
         },
       },
@@ -42,66 +42,34 @@ export const buildChannelSlackMessage = (
   };
 };
 
-export const buildInstructorDm = () => {
+export const buildInstructorDm = (
+  slackOptions: SlackOptions,
+  appUrl: string
+) => {
   return {
+    channel: slackOptions.instructorSlackId,
     blocks: [
       {
         type: "section",
         text: {
           type: "mrkdwn",
-          text:
-            "Today's zoom recording is ready. Would you like to add a summary?",
+          text: `The Zoom recording for *${slackOptions.recordingDate.toLocaleDateString()}*  is ready. Would you like to add a summary?`,
         },
-        accessory: {
-          type: "button",
-          action_id: "open_summary_modal_button",
-          text: {
-            type: "plain_text",
-            text: "Add Summary",
-            emoji: true,
+      },
+      {
+        type: "actions",
+        elements: [
+          {
+            type: "button",
+            style: "primary",
+            text: {
+              type: "plain_text",
+              text: "Add Summary",
+            },
+            url: `${appUrl}/${slackOptions.cohortId}/recordings/${slackOptions.recordingId}/edit`,
           },
-          value: "launch_button_click",
-        },
+        ],
       },
     ],
-  };
-};
-
-export const buildModal = (triggerId: string, modalId: string) => {
-  return {
-    trigger_id: triggerId,
-    view: {
-      type: "modal",
-      callback_id: modalId,
-      title: {
-        type: "plain_text",
-        text: "Lecture Summary",
-      },
-      submit: {
-        type: "plain_text",
-        text: "Submit",
-        emoji: true,
-      },
-      close: {
-        type: "plain_text",
-        text: "Cancel",
-        emoji: true,
-      },
-      blocks: [
-        {
-          type: "input",
-          label: {
-            type: "plain_text",
-            text: "So, tell me about your day",
-            emoji: true,
-          },
-          element: {
-            type: "plain_text_input",
-            multiline: true,
-          },
-          optional: false,
-        },
-      ],
-    },
   };
 };

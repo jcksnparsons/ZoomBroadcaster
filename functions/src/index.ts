@@ -3,11 +3,7 @@ import * as admin from "firebase-admin";
 import axios from "axios";
 import config from "./config";
 import { SlackOptions } from "./SlackOptions";
-import {
-  buildChannelSlackMessage,
-  buildInstructorDm,
-  buildModal,
-} from "./slackBuilder";
+import { buildChannelSlackMessage, buildInstructorDm } from "./slackBuilder";
 
 admin.initializeApp();
 
@@ -52,7 +48,9 @@ export const zoomRecordingReady = functions.https.onRequest(
       classRef = query.docs[0].ref;
     }
 
-    await classRef.collection("recordings").add(recording);
+    const newRecordingRef = await classRef
+      .collection("recordings")
+      .add(recording);
 
     // If classroom has been claimed by an instructor and has slack details, send notification
     if (classroomHasBeenClaimed) {
@@ -65,6 +63,8 @@ export const zoomRecordingReady = functions.https.onRequest(
         instructorSlackId: classData?.instructorSlackId,
         zoomLink: recording.url,
         zoomPassword: recording.password,
+        recordingDate: recording.date,
+        recordingId: newRecordingRef.id,
       };
 
       await sendSlackMessages(slackOptions, config.env.app.url);
@@ -72,25 +72,6 @@ export const zoomRecordingReady = functions.https.onRequest(
 
     response.status(200).send();
     return;
-  }
-);
-export const instructorSlackResponse = functions.https.onRequest(
-  async (request, response): Promise<void> => {
-    const { botAccessToken } = config.env.slack;
-    const requestPayload = JSON.parse(request.body.payload);
-    const modalPayload = buildModal(requestPayload.trigger_id, "summary-modal");
-
-    const { data } = await axios.post(
-      "https://slack.com/api/views.open",
-      modalPayload,
-      {
-        headers: {
-          Authorization: `Bearer ${botAccessToken}`,
-        },
-      }
-    );
-    console.log("Slack Response:", data);
-    response.status(200).send();
   }
 );
 
@@ -107,20 +88,20 @@ const sendSlackMessages = async (
   };
 
   console.log("Sending zoom link");
-  await axios.post(slackUrl, channelPayload, {
+  const channelResponse = await axios.post(slackUrl, channelPayload, {
     headers: {
       Authorization: `Bearer ${botAccessToken}`,
     },
   });
 
-  /* TODO: check to see if instructor slack ID is available */
-  const instructorPayload = {
-    channel: options.instructorSlackId,
-    ...buildInstructorDm(),
-  };
-  await axios.post(slackUrl, instructorPayload, {
+  console.log(channelResponse.data.error || "Zoom link sent to channel");
+
+  const instructorPayload = buildInstructorDm(options, appUrl);
+  const instructorResponse = await axios.post(slackUrl, instructorPayload, {
     headers: {
       Authorization: `Bearer ${botAccessToken}`,
     },
   });
+
+  console.log(instructorResponse.data.error || "Zoom link sent to instructor");
 };
