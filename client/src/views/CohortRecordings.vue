@@ -7,6 +7,13 @@
     >
       <template v-slot:before>
         <div class="q-pa-md">
+          <q-skeleton
+            v-if="!classroom"
+            tag="h5"
+            width="200px"
+            animation="wave"
+            class="skeleton--header"
+          />
           <h5 class="text-blue-grey-8 text-center">
             {{ classroom && classroom.cohortName }}
           </h5>
@@ -141,3 +148,10 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.skeleton--header {
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>

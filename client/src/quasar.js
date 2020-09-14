@@ -22,6 +22,9 @@ import {
   QInput,
   QForm,
   Notify,
+  QSkeleton,
+  QDialog,
+  Loading,
 } from "quasar";
 
 Vue.use(Quasar, {
@@ -44,9 +47,13 @@ Vue.use(Quasar, {
     QDate,
     QInput,
     QForm,
+    QSkeleton,
+    QDialog,
+    Loading,
   },
   directives: {},
   plugins: {
     Notify,
+    Loading,
   },
 });

@@ -7,6 +7,18 @@ Vue.use(VueRouter);
 
 export const routes = [
   {
+    path: "/login",
+    name: "Login",
+    component: () =>
+      import(/* webpackChunkName: "login" */ "../views/Login.vue"),
+  },
+  {
+    path: "/users/:userId",
+    name: "ClassroomManager",
+    component: () =>
+      import(/* webpackChunkName: "admin" */ "../views/ClassroomManager.vue"),
+  },
+  {
     path: "/:cohort",
     name: "Recordings",
     component: CohortRecordings,
@@ -16,12 +28,6 @@ export const routes = [
     name: "SummaryForm",
     component: RecordingSummaryForm,
   },
-  // {
-  //   path: "/login",
-  //   name: "Login",
-  //   component: () =>
-  //     import(/* webpackChunkName: "login" */ "../views/Login.vue"),
-  // },
 ];
 
 const router = new VueRouter({

@@ -23,7 +23,14 @@ export const zoomRecordingReady = functions.https.onRequest(
 
     const classroomsRef = admin.firestore().collection("classrooms");
     const { payload } = request.body;
-    const { topic, password, share_url, start_time, duration } = payload.object;
+    const {
+      id,
+      topic,
+      password,
+      share_url,
+      start_time,
+      duration,
+    } = payload.object;
 
     const recording = {
       password,
@@ -31,6 +38,7 @@ export const zoomRecordingReady = functions.https.onRequest(
       url: share_url,
       date: new Date(start_time),
       duration,
+      zoomId: id,
     };
 
     let classRef: FirebaseFirestore.DocumentReference;
@@ -46,6 +54,16 @@ export const zoomRecordingReady = functions.https.onRequest(
     } else {
       classroomHasBeenClaimed = true;
       classRef = query.docs[0].ref;
+    }
+
+    const alreadySaved = await isAlreadySaved(classRef, recording.zoomId);
+
+    if (alreadySaved) {
+      console.log(
+        `Duplicate recording. Ignoring Zoom request for ID ${recording.zoomId}`
+      );
+      response.status(200).send();
+      return;
     }
 
     const newRecordingRef = await classRef
@@ -74,6 +92,20 @@ export const zoomRecordingReady = functions.https.onRequest(
     return;
   }
 );
+
+// Zoom will send multiple requests for the same class recording.
+// Either the audio track has processed seperately
+// or students have also hit the "record to cloud" button
+const isAlreadySaved = async (
+  classRef: FirebaseFirestore.DocumentReference,
+  zoomRecordingId: string
+): Promise<Boolean> => {
+  const query = await classRef
+    .collection("recordings")
+    .where("zoomId", "==", zoomRecordingId)
+    .get();
+  return !query.empty;
+};
 
 const sendSlackMessages = async (
   options: SlackOptions,

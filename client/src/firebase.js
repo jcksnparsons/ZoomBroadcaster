@@ -1,6 +1,7 @@
 import * as firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/firestore";
+import "firebase/auth";
 
 const firebaseConfig = {
   apiKey: process.env.VUE_APP_API_KEY,
@@ -22,6 +23,9 @@ const classroomsCollection = db.collection("classrooms");
 const getRecordingsCollection = (cohortId) =>
   classroomsCollection.doc(cohortId).collection("recordings");
 
+const googleProvider = new firebase.auth.GoogleAuthProvider();
+const signIn = () => firebase.auth().signInWithPopup(googleProvider);
+
 // export utils/refs
 export {
   db,
@@ -29,4 +33,5 @@ export {
   usersCollection,
   classroomsCollection,
   getRecordingsCollection,
+  signIn,
 };

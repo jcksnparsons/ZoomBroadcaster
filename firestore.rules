@@ -1,9 +1,20 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function isInstructor() {
+    	return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isApproved == true;
+    }
+
     match /{document=**} {
       allow read, write: if
           request.time < timestamp.date(2020, 10, 9);
+    }
+
+    match /users/{document} {
+      allow read;
+      allow create: if request.resource.data.keys().hasAny(['isApproved']) == false
+      allow write: if (request.resource.data.keys().hasAny(['isApproved']) == false
+      								&& resource.data.uid == request.auth.uid) || isInstructor() == true;
     }
   }
 }
