@@ -1,9 +1,12 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
+import * as cors from "cors";
 import axios from "axios";
 import config from "./config";
 import { SlackOptions } from "./SlackOptions";
 import { buildChannelSlackMessage, buildInstructorDm } from "./slackBuilder";
+
+const corsHandler = cors({ origin: true });
 
 admin.initializeApp();
 
@@ -90,6 +93,31 @@ export const zoomRecordingReady = functions.https.onRequest(
 
     response.status(200).send();
     return;
+  }
+);
+
+export const searchSlackUser = functions.https.onRequest(
+  (request, response) => {
+    corsHandler(request, response, async () => {
+      const { email } = request.query;
+      if (!email) {
+        response.status(400).send();
+        return;
+      }
+
+      const { botAccessToken } = config.env.slack;
+      const slackUrl = `https://slack.com/api/users.lookupByEmail?email=${email}`;
+
+      console.log(`searching slack for email: ${email}`);
+
+      const { data } = await axios.get(slackUrl, {
+        headers: {
+          Authorization: `Bearer ${botAccessToken}`,
+        },
+      });
+
+      response.status(200).send(data);
+    });
   }
 );
 

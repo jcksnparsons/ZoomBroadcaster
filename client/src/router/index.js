@@ -2,10 +2,17 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 import CohortRecordings from "../views/CohortRecordings.vue";
 import RecordingSummaryForm from "../views/RecordingSummaryForm.vue";
+import NotFound from "../views/NotFound.vue";
+import { auth, usersCollection } from "../firebase";
 
 Vue.use(VueRouter);
 
 export const routes = [
+  {
+    path: "/404",
+    name: "NotFound",
+    component: NotFound,
+  },
   {
     path: "/login",
     name: "Login",
@@ -17,6 +24,7 @@ export const routes = [
     name: "ClassroomManager",
     component: () =>
       import(/* webpackChunkName: "admin" */ "../views/ClassroomManager.vue"),
+    beforeEnter: verifyAuthorizedUser,
   },
   {
     path: "/:cohort",
@@ -27,8 +35,25 @@ export const routes = [
     path: "/:cohort/recordings/:recording/edit",
     name: "SummaryForm",
     component: RecordingSummaryForm,
+    beforeEnter: verifyAuthorizedUser,
   },
 ];
+
+const verifyAuthorizedUser = async (_to, _from, next) => {
+  if (!auth.currentUser) {
+    next({ path: "/404" });
+    return;
+  }
+  const userId = auth.currentUser.uid;
+  const userSnap = await usersCollection.doc(userId).get();
+  const user = await userSnap.data();
+
+  if (user.isApproved) {
+    next();
+  } else {
+    next({ path: "/404" });
+  }
+};
 
 const router = new VueRouter({
   mode: "history",
