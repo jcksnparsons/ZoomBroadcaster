@@ -2,7 +2,13 @@
   <div v-if="message">
     <h5 class="text-center text-blue-grey-8">{{ message }}</h5>
   </div>
-  <div v-else></div>
+  <div v-else class="login-container">
+    <div class="row justify-center">
+      <q-btn rounded color="deep-orange" size="xl" @click="login()"
+        >Sign In With Google</q-btn
+      >
+    </div>
+  </div>
 </template>
 
 <script>
@@ -16,15 +22,12 @@ export default {
     };
   },
 
-  mounted() {
-    this.$q.loading.show({
-      spinner: QSpinnerGears,
-    });
-    this.login();
-  },
-
   methods: {
     async login() {
+      this.$q.loading.show({
+        spinner: QSpinnerGears,
+      });
+
       const creds = await signIn();
       const user = {
         loginEmail: creds.user.email,
@@ -66,8 +69,10 @@ export default {
 </script>
 
 <style scoped>
-.section--login {
-  border-right: 2px solid rgba(0, 0, 0, 0.2);
-  height: 100vh;
+.login-container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 50%;
 }
 </style>

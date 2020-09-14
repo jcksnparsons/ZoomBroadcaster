@@ -37,6 +37,17 @@ export const routes = [
     component: RecordingSummaryForm,
     beforeEnter: verifyAuthorizedUser,
   },
+  {
+    path: "/",
+    name: "Home",
+    beforeEnter: (to, from, next) => {
+      if (auth.currentUser) {
+        next({ path: `/users/${auth.currentUser.uid}` });
+      } else {
+        next({ path: "/404" });
+      }
+    },
+  },
 ];
 
 const verifyAuthorizedUser = async (_to, _from, next) => {

@@ -96,13 +96,25 @@ export default {
           : `#${slackChannel}`,
       };
 
-      const existingClassId = await this.getExistingClassroomId(
+      const existingClass = await this.getExistingClassroom(
         this.form.meetingName
       );
 
-      if (existingClassId) {
+      if (
+        existingClass &&
+        existingClass.instructorId !== updates.instructorId
+      ) {
+        this.$q.notify({
+          type: "error",
+          message:
+            "This meeting cannot be claimed because it is already managed by another instructor",
+        });
+        return;
+      }
+
+      if (existingClass) {
         await classroomsCollection
-          .doc(existingClassId)
+          .doc(existingClass.id)
           .set(updates, { merge: true });
       } else {
         await classroomsCollection.add(updates);
@@ -110,7 +122,7 @@ export default {
 
       this.$q.notify({
         type: "positive",
-        message: existingClassId
+        message: existingClass
           ? "Classroom Created. Existing recordings have been automatically added"
           : "Classroom Created",
       });
@@ -141,7 +153,7 @@ export default {
       return true;
     },
 
-    async getExistingClassroomId(meetingName) {
+    async getExistingClassroom(meetingName) {
       const querySnap = await classroomsCollection
         .where("meetingName", "==", meetingName)
         .get();
@@ -149,7 +161,10 @@ export default {
       if (querySnap.empty) return null;
 
       const doc = querySnap.docs[0];
-      return doc.id;
+      return {
+        id: doc.id,
+        ...doc.data(),
+      };
     },
   },
 };

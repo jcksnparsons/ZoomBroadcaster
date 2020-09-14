@@ -51,10 +51,20 @@
                 :key="recording.id"
               >
                 <q-item-section>
-                  <q-item-label class="text-deep-orange">Summary</q-item-label>
-                  <q-item-label caption>{{
-                    recording.summary || "No summary available"
-                  }}</q-item-label>
+                  <q-item-label class="text-deep-orange">
+                    Summary
+                  </q-item-label>
+                  <q-item-label caption>
+                    {{ recording.summary || "No summary available" }}
+                    <router-link
+                      v-if="isInstructor"
+                      :to="{
+                        path: `/${classroom.id}/recordings/${recording.id}/edit`,
+                      }"
+                    >
+                      (edit)
+                    </router-link>
+                  </q-item-label>
                   <q-item-label class="q-pt-sm">
                     <a :href="recording.url" target="_blank">
                       View in Zoom
@@ -86,6 +96,7 @@
 <script>
 import { classroomsCollection } from "../firebase";
 import { date } from "quasar";
+import { auth } from "../firebase";
 
 export default {
   name: "CohortRecordings",
@@ -105,7 +116,10 @@ export default {
   async mounted() {
     const cohortRef = classroomsCollection.doc(this.meetingName);
     cohortRef.onSnapshot((snap) => {
-      this.classroom = snap.data();
+      this.classroom = {
+        id: cohortRef.id,
+        ...snap.data(),
+      };
     });
 
     cohortRef.collection("recordings").onSnapshot((snap) => {
@@ -131,6 +145,12 @@ export default {
   },
 
   computed: {
+    isInstructor() {
+      if (!this.classroom) return false;
+
+      return this.classroom.instructorId === auth.currentUser.uid;
+    },
+
     options() {
       const dates = this.recordings.map((rec) => {
         const recDate = new Date(rec.date.seconds * 1000);

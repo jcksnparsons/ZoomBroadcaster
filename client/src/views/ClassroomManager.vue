@@ -9,6 +9,7 @@
           color="deep-orange"
           :ripple="false"
           @click="showingForm = true"
+          :disable="showingForm"
         >
           Add Classroom
         </q-btn>
