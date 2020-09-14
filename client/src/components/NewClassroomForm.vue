@@ -88,10 +88,12 @@ export default {
       const updates = {
         meetingName,
         cohortName,
-        slackChannel,
         instructorSlackEmail,
         instructorSlackId,
         instructorId: auth.currentUser.uid,
+        slackChannel: slackChannel.startsWith("#")
+          ? slackChannel
+          : `#${slackChannel}`,
       };
 
       const existingClassId = await this.getExistingClassroomId(

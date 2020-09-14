@@ -109,9 +109,11 @@ export default {
       const updates = {
         meetingName,
         cohortName,
-        slackChannel,
         instructorSlackEmail,
         instructorSlackId,
+        slackChannel: slackChannel.startsWith("#")
+          ? slackChannel
+          : `#${slackChannel}`,
       };
 
       await classroomsCollection
