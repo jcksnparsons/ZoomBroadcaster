@@ -68,3 +68,4 @@ env.local.json
 
 # build output directory
 public/
+!client/public
