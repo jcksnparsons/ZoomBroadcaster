@@ -16,6 +16,13 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 
+if (location.hostname === "localhost") {
+  db.settings({
+    host: "localhost:8080",
+    ssl: false,
+  });
+}
+
 // collection references
 const usersCollection = db.collection("users");
 const classroomsCollection = db.collection("classrooms");

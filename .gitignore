@@ -64,6 +64,7 @@ node_modules/
 # dotenv environment variables file
 .env
 env.json
+env.local.json
 
 # build output directory
 public/
