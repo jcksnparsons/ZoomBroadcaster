@@ -6,7 +6,8 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "serve:dev": "npm run serve -- --port 3000 & firebase emulators:start"
+    "firebase:emulators": "firebase emulators:start --export-on-exit=../emulator_data --import=../emulator_data",
+    "serve:dev": "npm run serve -- --port 3000 & npm run firebase:emulators"
   },
   "dependencies": {
     "@quasar/extras": "^1.0.0",
