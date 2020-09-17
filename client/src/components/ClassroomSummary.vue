@@ -61,11 +61,23 @@
         </q-card-section>
         <q-separator v-if="editing" />
 
-        <q-card-actions align="right" v-if="editing">
-          <q-btn outline color="blue-grey-8" @click="cancel()">
-            Cancel
-          </q-btn>
-          <q-btn outline color="deep-orange" @click="update()">Update</q-btn>
+        <q-card-actions class="row justify-between" v-if="editing">
+          <div>
+            <q-btn outline color="red" @click="deleteClass()">
+              Delete
+            </q-btn>
+          </div>
+          <div>
+            <q-btn
+              class="q-mr-md"
+              outline
+              color="blue-grey-8"
+              @click="cancel()"
+            >
+              Cancel
+            </q-btn>
+            <q-btn outline color="deep-orange" @click="update()">Update</q-btn>
+          </div>
         </q-card-actions>
       </q-form>
     </q-card>
@@ -125,6 +137,11 @@ export default {
         type: "positive",
         message: "Classroom Updated",
       });
+    },
+
+    async deleteClass() {
+      const ref = classroomsCollection.doc(this.classroom.id);
+      await ref.delete();
     },
 
     cancel() {

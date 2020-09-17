@@ -27,6 +27,12 @@ export const routes = [
     beforeEnter: verifyAuthorizedUser,
   },
   {
+    path: "/approval_request",
+    name: "ApprovalRequest",
+    component: () =>
+      import(/* webpackChunkName: "admin" */ "../views/ApprovalRequest.vue"),
+  },
+  {
     path: "/:cohort",
     name: "Recordings",
     component: CohortRecordings,

@@ -73,3 +73,48 @@ export const buildInstructorDm = (
     ],
   };
 };
+
+export const buildApprovalRequestMessage = (
+  userDisplayName: string,
+  approveCallbackUrl: string
+) => {
+  return {
+    blocks: [
+      {
+        type: "section",
+        text: {
+          type: "plain_text",
+          text: `${userDisplayName} is requesting instructor access to the Zoom Broadcaster`,
+        },
+      },
+      {
+        type: "actions",
+        elements: [
+          {
+            type: "button",
+            style: "primary",
+            text: {
+              type: "plain_text",
+              text: "Approve",
+            },
+            url: approveCallbackUrl,
+          },
+        ],
+      },
+    ],
+  };
+};
+
+export const buildApprovalSuccessMessage = (userDisplayName: string) => {
+  return {
+    blocks: [
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: `:+1: ${userDisplayName} has been approved on the Zoom Broadcaster`,
+        },
+      },
+    ],
+  };
+};

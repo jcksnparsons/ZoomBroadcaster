@@ -35,6 +35,11 @@
           transition-prev="fade"
           transition-next="fade"
         >
+          <q-tab-panel v-if="!options.length && !loading" :name="selectedDate">
+            <h5 class="q-mb-sm text-deep-orange-4">
+              No Recordings Available
+            </h5>
+          </q-tab-panel>
           <q-tab-panel v-for="event in options" :key="event" :name="event">
             <h2 class="q-mb-sm text-blue-grey-10">
               {{ getDisplayDate(event) }}
@@ -110,6 +115,7 @@ export default {
       splitterModel: 65,
       selectedDate: this.dateStr(now),
       classroom: null,
+      loading: true,
     };
   },
 
@@ -123,6 +129,7 @@ export default {
     });
 
     cohortRef.collection("recordings").onSnapshot((snap) => {
+      this.loading = false;
       this.recordings = snap.docs.map((doc) => ({
         ...doc.data(),
         id: doc.id,
@@ -141,12 +148,11 @@ export default {
       const dateToFormat = typeof d === "string" ? new Date(d) : d;
       return date.formatDate(dateToFormat, "MMM DD, YYYY");
     },
-    showAll() {},
   },
 
   computed: {
     isInstructor() {
-      if (!this.classroom) return false;
+      if (!this.classroom || !auth.currentUser) return false;
 
       return this.classroom.instructorId === auth.currentUser.uid;
     },

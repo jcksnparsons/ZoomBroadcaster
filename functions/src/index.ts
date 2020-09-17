@@ -4,7 +4,13 @@ import * as cors from "cors";
 import axios from "axios";
 import config from "./config";
 import { SlackOptions } from "./SlackOptions";
-import { buildChannelSlackMessage, buildInstructorDm } from "./slackBuilder";
+import { User } from "./User";
+import {
+  buildApprovalRequestMessage,
+  buildApprovalSuccessMessage,
+  buildChannelSlackMessage,
+  buildInstructorDm,
+} from "./slackBuilder";
 
 const corsHandler = cors({ origin: true });
 
@@ -121,6 +127,44 @@ export const searchSlackUser = functions.https.onRequest(
   }
 );
 
+export const userAdded = functions.firestore
+  .document("users/{userId}")
+  .onCreate(async (userSnapshot, _event) => {
+    const user: User = userSnapshot.data() as User;
+    const url = `${config.env.app.url}/approval_request?uid=${user.uid}`;
+    await sendApprovalRequestMessage(user, url);
+  });
+
+export const approveRequest = functions.https.onRequest((request, response) =>
+  corsHandler(request, response, async () => {
+    const userId = request.query.uid;
+
+    const snapshot = await admin.firestore().doc(`/users/${userId}`).get();
+    if (!snapshot.exists) {
+      console.log("Tried approving user but none with matching ID exists");
+      response.status(404).send();
+      return;
+    }
+
+    const user = snapshot.data() as User;
+
+    if (user.isApproved) {
+      console.log("Tried approving user that's already approved. Exiting...");
+      response.status(200).send();
+      return;
+    }
+
+    await snapshot.ref.update({ isApproved: true });
+
+    console.log(`${user.displayName} has been successfully approved`);
+
+    await sendApprovalSuccessMessage(user);
+
+    response.status(200).send();
+    return;
+  })
+);
+
 // Zoom will send multiple requests for the same class recording.
 // Either the audio track has processed seperately
 // or students have also hit the "record to cloud" button
@@ -133,6 +177,49 @@ const isAlreadySaved = async (
     .where("zoomId", "==", zoomRecordingId)
     .get();
   return !query.empty;
+};
+
+const sendApprovalRequestMessage = async (
+  user: User,
+  appUrl: string
+): Promise<void> => {
+  const targetSlackChannel = "#learning-team";
+  const { botAccessToken } = config.env.slack;
+  const slackUrl = "https://slack.com/api/chat.postMessage";
+
+  const channelPayload = {
+    channel: targetSlackChannel,
+    ...buildApprovalRequestMessage(user.displayName, appUrl),
+  };
+
+  console.log("Sending approval request to #learning-team channel");
+
+  const channelResponse = await axios.post(slackUrl, channelPayload, {
+    headers: {
+      Authorization: `Bearer ${botAccessToken}`,
+    },
+  });
+
+  console.log(channelResponse.data.error || "Approval link sent to channel");
+};
+
+const sendApprovalSuccessMessage = async (user: User): Promise<void> => {
+  const targetSlackChannel = "#learning-team";
+  const { botAccessToken } = config.env.slack;
+  const slackUrl = "https://slack.com/api/chat.postMessage";
+
+  const channelPayload = {
+    channel: targetSlackChannel,
+    ...buildApprovalSuccessMessage(user.displayName),
+  };
+
+  const channelResponse = await axios.post(slackUrl, channelPayload, {
+    headers: {
+      Authorization: `Bearer ${botAccessToken}`,
+    },
+  });
+
+  console.log(channelResponse.data.error || "Message sent to channel");
 };
 
 const sendSlackMessages = async (

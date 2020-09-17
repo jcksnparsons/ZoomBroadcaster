@@ -100,10 +100,12 @@ export default {
         this.form.meetingName
       );
 
-      if (
-        existingClass &&
-        existingClass.instructorId !== updates.instructorId
-      ) {
+      const alreadyClaimed =
+        Boolean(existingClass) &&
+        Boolean(existingClass.instructorId) &&
+        existingClass.instructorId !== updates.instructorId;
+
+      if (alreadyClaimed) {
         this.$q.notify({
           type: "error",
           message:
