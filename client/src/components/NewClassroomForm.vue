@@ -31,6 +31,7 @@
               color="deep-orange"
               filled
               label="Slack Channel"
+              hint="Ex: day-cohort-43"
               v-model="form.slackChannel"
             />
             <q-input
@@ -49,7 +50,14 @@
           <q-btn outline color="blue-grey-8" @click="cancel()">
             Cancel
           </q-btn>
-          <q-btn outline color="deep-orange" @click="update()">Update</q-btn>
+          <q-btn
+            outline
+            color="deep-orange"
+            @click="update()"
+            :loading="loading"
+          >
+            Update
+          </q-btn>
         </q-card-actions>
       </q-form>
     </q-card>
@@ -67,11 +75,13 @@ export default {
   data() {
     return {
       form: {},
+      loading: false,
     };
   },
 
   methods: {
     async update() {
+      this.loading = true;
       const verifiedEmail = await this.verifySlackEmail();
 
       if (!verifiedEmail) {
@@ -111,6 +121,7 @@ export default {
           message:
             "This meeting cannot be claimed because it is already managed by another instructor",
         });
+        this.loading = false;
         return;
       }
 

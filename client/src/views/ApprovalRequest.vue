@@ -5,6 +5,7 @@
 </template>
 
 <script>
+import { QSpinnerGears } from "quasar";
 import axios from "axios";
 import { auth } from "../firebase";
 
@@ -16,10 +17,16 @@ export default {
     };
   },
   async mounted() {
+    this.$q.loading.show({
+      spinner: QSpinnerGears,
+    });
+
     const { uid } = this.$route.query;
     const url = `${baseUrl}?uid=${uid}`;
     const res = await axios.post(url);
     const okResponse = res.status === 200;
+
+    this.$q.loading.hide();
 
     if (!okResponse) {
       this.message = "There was an error approving the user";
