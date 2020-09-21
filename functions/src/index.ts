@@ -50,6 +50,10 @@ export const zoomRecordingReady = functions.https.onRequest(
       zoomId: id,
     };
 
+    console.log(
+      `Handling Zoom request for ${recording.meetingName} with ID ${recording.zoomId} starting at ${recording.date}`
+    );
+
     let classRef: FirebaseFirestore.DocumentReference;
     let classroomHasBeenClaimed = false;
     const query = await classroomsRef
@@ -65,7 +69,7 @@ export const zoomRecordingReady = functions.https.onRequest(
       classRef = query.docs[0].ref;
     }
 
-    const alreadySaved = await isAlreadySaved(classRef, recording.zoomId);
+    const alreadySaved = await isAlreadySaved(classRef, recording.url);
 
     if (alreadySaved) {
       console.log(
@@ -170,11 +174,11 @@ export const approveRequest = functions.https.onRequest((request, response) =>
 // or students have also hit the "record to cloud" button
 const isAlreadySaved = async (
   classRef: FirebaseFirestore.DocumentReference,
-  zoomRecordingId: string
+  shareUrl: string
 ): Promise<Boolean> => {
   const query = await classRef
     .collection("recordings")
-    .where("zoomId", "==", zoomRecordingId)
+    .where("url", "==", shareUrl)
     .get();
   return !query.empty;
 };
