@@ -169,9 +169,10 @@ export const approveRequest = functions.https.onRequest((request, response) =>
   })
 );
 
-// Zoom will send multiple requests for the same class recording.
-// Either the audio track has processed seperately
-// or students have also hit the "record to cloud" button
+// If Zoom doesn't receive a 2xx response within 3 seconds
+// they will retry the request up to 3 times.
+// This doesn't necessarily mean that it failed, so check if
+// the recording is already saved before trying to save it again
 const isAlreadySaved = async (
   classRef: FirebaseFirestore.DocumentReference,
   shareUrl: string

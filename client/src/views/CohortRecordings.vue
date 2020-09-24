@@ -1,11 +1,7 @@
 <template>
   <div>
-    <q-splitter
-      v-model="splitterModel"
-      :limits="[50, 70]"
-      style="height: 100vh"
-    >
-      <template v-slot:before>
+    <div class="row justify-center" style="height: 100vh">
+      <div class="col-sm-12 col-md-6 col-lg-7">
         <div class="q-pa-md">
           <q-skeleton
             v-if="!classroom"
@@ -19,25 +15,26 @@
           </h5>
           <div class="row justify-center q-pt-lg">
             <q-date
-              class="col-sm-12 col-md-10 col-lg-6"
+              id="calendar"
+              class="col-xs-12 col-sm-10"
               v-model="selectedDate"
               :options="options"
               color="deep-orange"
             />
           </div>
         </div>
-      </template>
+      </div>
 
-      <template v-slot:after>
+      <div class="col-xs-12 col-sm-10 col-md-6 col-lg-5 recording-list">
         <q-tab-panels
           v-model="selectedDate"
           animated
           transition-prev="fade"
           transition-next="fade"
         >
-          <q-tab-panel v-if="!options.length && !loading" :name="selectedDate">
+          <q-tab-panel v-if="emptyRecordingMessage" :name="selectedDate">
             <h5 class="q-mb-sm text-deep-orange-4">
-              No Recordings Available
+              {{ emptyRecordingMessage }}
             </h5>
           </q-tab-panel>
           <q-tab-panel v-for="event in options" :key="event" :name="event">
@@ -93,8 +90,8 @@
             </q-list>
           </q-tab-panel>
         </q-tab-panels>
-      </template>
-    </q-splitter>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -171,6 +168,20 @@ export default {
         return this.selectedDate === this.dateStr(recDate);
       });
     },
+
+    emptyRecordingMessage() {
+      if (this.loading) return null;
+
+      if (this.recordings && this.recordings.length === 0) {
+        return "There are currently no recordings for this class";
+      }
+
+      if (!this.recordingsDisplayed.length) {
+        return "There are no recordings for this date";
+      }
+
+      return null;
+    },
   },
 };
 </script>
@@ -179,5 +190,15 @@ export default {
 .skeleton--header {
   margin-left: auto;
   margin-right: auto;
+}
+
+#calendar {
+  height: 600px;
+}
+
+@media only screen and (min-width: 1024px) {
+  .recording-list {
+    border-left: 1px solid rgba(0, 0, 0, 0.1);
+  }
 }
 </style>
