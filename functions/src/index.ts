@@ -87,18 +87,21 @@ export const zoomRecordingReady = functions.https.onRequest(
     if (classroomHasBeenClaimed) {
       const classSnap = await classRef.get();
       const classData = await classSnap.data();
-      const slackOptions: SlackOptions = {
-        cohortId: classRef.id,
-        channel: `#${classData?.slackChannel}`,
-        instructorEmail: classData?.instructorSlackEmail,
-        instructorSlackId: classData?.instructorSlackId,
-        zoomLink: recording.url,
-        zoomPassword: recording.password,
-        recordingDate: recording.date,
-        recordingId: newRecordingRef.id,
-      };
 
-      await sendSlackMessages(slackOptions, config.env.app.url);
+      if (classData && classData.instructorId) {
+        const slackOptions: SlackOptions = {
+          cohortId: classRef.id,
+          channel: `#${classData?.slackChannel}`,
+          instructorEmail: classData?.instructorSlackEmail,
+          instructorSlackId: classData?.instructorSlackId,
+          zoomLink: recording.url,
+          zoomPassword: recording.password,
+          recordingDate: recording.date,
+          recordingId: newRecordingRef.id,
+        };
+
+        await sendSlackMessages(slackOptions, config.env.app.url);
+      }
     }
 
     response.status(200).send();

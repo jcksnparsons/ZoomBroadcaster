@@ -24,7 +24,9 @@ export const routes = [
     name: "ClassroomManager",
     component: () =>
       import(/* webpackChunkName: "admin" */ "../views/ClassroomManager.vue"),
-    beforeEnter: verifyAuthorizedUser,
+    beforeEnter: async (to, from, next) => {
+      await verifyAuthorizedUser(to, from, next);
+    },
   },
   {
     path: "/approval_request",
@@ -41,7 +43,9 @@ export const routes = [
     path: "/:cohort/recordings/:recording/edit",
     name: "SummaryForm",
     component: RecordingSummaryForm,
-    beforeEnter: verifyAuthorizedUser,
+    beforeEnter: async (to, from, next) => {
+      await verifyAuthorizedUser(to, from, next);
+    },
   },
   {
     path: "/",
