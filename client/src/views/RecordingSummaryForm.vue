@@ -16,6 +16,24 @@
           type="textarea"
           placeholder="Topics, chapters, etc..."
         />
+        <div class="row q-mt-md">
+          <q-input
+            class="col q-mr-xs"
+            color="deep-orange"
+            v-model="recording.linkDescription"
+            label="Recording Link Description"
+            outlined
+            placeholder="This is where you put a name for your link..."
+          />
+          <q-input
+            class="col q-ml-xs"
+            color="deep-orange"
+            v-model="recording.linkURL"
+            label="Recording Link"
+            outlined
+            placeholder="This is where you put your link..."
+          />
+        </div>
         <div class="row justify-end">
           <div class="col q-py-md">
             <q-btn @click="submit()" color="deep-orange">Submit</q-btn>
